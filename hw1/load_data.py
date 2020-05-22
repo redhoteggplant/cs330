@@ -103,17 +103,18 @@ class DataGenerator(object):
         #############################
         #### YOUR CODE GOES HERE ####
 
+        B, K, N = batch_size, self.num_samples_per_class, self.num_classes
         all_image_batches = []
-        all_label_batches = np.zeros((batch_size, self.num_samples_per_class * self.num_classes, self.num_classes))
+        all_label_batches = np.zeros((B, K*N, N))
 
-        for b in range(batch_size):
+        for b in range(B):
             # 1. Sample N different classes from either the specified train, test, or validation folders.
-            paths = random.sample(folders, self.num_classes)    # (N,)
-            classes = list(range(self.num_classes))             # (N,)
+            paths = random.sample(folders, N)    # (N,)
+            classes = list(range(N))             # (N,)
 
             # 2a. Load K images per class and collect the associated labels
-            images_labels = get_images(paths, classes, self.num_samples_per_class, shuffle=False) # (N*K,2)
-            images_labels_sets = np.array(images_labels).reshape(self.num_classes, self.num_samples_per_class, 2) \
+            images_labels = get_images(paths, classes, K, shuffle=False) # (N*K,2)
+            images_labels_sets = np.array(images_labels).reshape(N, K, 2) \
                                                         .transpose(1, 0, 2) # (K, N, 2)
 
             # 2b. Shuffle the order of N image classes for each (K+1) sets
@@ -126,10 +127,10 @@ class DataGenerator(object):
             #    [B;K;N; 784] and one of one-hot labels [B;K;N;N]
             image_arrays = [image_file_to_array(file, self.dim_input) for file in images]   # (K*N, 784)
             all_image_batches.append(image_arrays)
-            all_label_batches[b, np.arange(self.num_samples_per_class * self.num_classes), labels] = 1
+            all_label_batches[b, np.arange(K*N), labels] = 1
 
-        all_image_batches = np.array(all_image_batches).reshape((batch_size, self.num_samples_per_class, self.num_classes, 784))
-        all_label_batches = np.reshape(all_label_batches, (batch_size, self.num_samples_per_class, self.num_classes, self.num_classes))
+        all_image_batches = np.array(all_image_batches).reshape((B, K, N, self.dim_input))
+        all_label_batches = np.reshape(all_label_batches, (B, K, N, N))
 
         #############################
 

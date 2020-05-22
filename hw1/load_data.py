@@ -103,7 +103,6 @@ class DataGenerator(object):
         #############################
         #### YOUR CODE GOES HERE ####
 
-        K, N = self.num_samples_per_class, self.num_classes
         all_image_batches = []
         all_label_batches = np.zeros((batch_size, self.num_samples_per_class * self.num_classes, self.num_classes))
 
@@ -113,8 +112,15 @@ class DataGenerator(object):
             classes = list(range(self.num_classes))             # (N,)
 
             # 2a. Load K images per class and collect the associated labels
-            images_labels = get_images(paths, classes, self.num_samples_per_class) # (K*N,2)
-            images, labels = zip(*images_labels)
+            images_labels = get_images(paths, classes, self.num_samples_per_class, shuffle=False) # (N*K,2)
+            images_labels_sets = np.array(images_labels).reshape(self.num_classes, self.num_samples_per_class, 2) \
+                                                        .transpose(1, 0, 2) # (K, N, 2)
+
+            # 2b. Shuffle the order of N image classes for each (K+1) sets
+            for images_labels_set in images_labels_sets:
+                np.random.shuffle(images_labels_set)
+            labels = images_labels_sets[:, :, 0].reshape(-1).astype(int)
+            images = images_labels_sets[:, :, 1].reshape(-1)
 
             # 3. Format the data and return two numpy matrices, one of flattened images with shape
             #    [B;K;N; 784] and one of one-hot labels [B;K;N;N]

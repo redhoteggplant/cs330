@@ -63,8 +63,10 @@ def meta_train(model, saver, sess, exp_string, data_generator, resume_itr=0):
 
 		# sample a batch of training data and partition into
 		# group a (inputa, labela) and group b (inputb, labelb)
+	    all_image_batches, all_label_batches = generator.sample_batch("meta_train", FLAGS.meta_batch_size)
+		inputa, inputb = all_image_batches.split([FLAGS.k_shot], axis=2)
+		labela, labelb = all_label_batches.split([FLAGS.k_shot], axis=2)
 
-		inputa, inputb, labela, labelb = None, None, None, None
 		#############################
 		feed_dict = {model.inputa: inputa, model.inputb: inputb,  model.labela: labela, model.labelb: labelb}
 
@@ -96,8 +98,10 @@ def meta_train(model, saver, sess, exp_string, data_generator, resume_itr=0):
 
 		    # sample a batch of validation data and partition into
 		    # group a (inputa, labela) and group b (inputb, labelb)
+		    all_image_batches, all_label_batches = generator.sample_batch("meta_val", FLAGS.meta_batch_size)
+			inputa, inputb = all_image_batches.split([FLAGS.k_shot], axis=2)
+			labela, labelb = all_label_batches.split([FLAGS.k_shot], axis=2)
 
-			inputa, inputb, labela, labelb = None, None, None, None
 			#############################
 			feed_dict = {model.inputa: inputa, model.inputb: inputb,  model.labela: labela, model.labelb: labelb, model.meta_lr: 0.0}
 			input_tensors = [model.total_accuracy1, model.total_accuracies2[FLAGS.num_inner_updates-1]]
@@ -124,8 +128,10 @@ def meta_test(model, saver, sess, exp_string, data_generator, meta_test_num_inne
 
 		# sample a batch of test data and partition into
 		# group a (inputa, labela) and group b (inputb, labelb)
+	    all_image_batches, all_label_batches = generator.sample_batch("meta_test", FLAGS.meta_batch_size)
+		inputa, inputb = all_image_batches.split([FLAGS.k_shot], axis=2)
+		labela, labelb = all_label_batches.split([FLAGS.k_shot], axis=2)
 
-		inputa, inputb, labela, labelb = None, None, None, None
 		#############################
 		feed_dict = {model.inputa: inputa, model.inputb: inputb, model.labela: labela, model.labelb: labelb, model.meta_lr: 0.0}
 

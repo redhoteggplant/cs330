@@ -6,6 +6,10 @@ tf.disable_v2_behavior()
 from load_data import DataGenerator
 from tensorflow.python.platform import flags
 from tensorflow.keras import layers
+import matplotlib.pyplot as plt
+import os
+
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 FLAGS = flags.FLAGS
 
@@ -106,6 +110,7 @@ with tf.Session() as sess:
     sess.run(tf.local_variables_initializer())
     sess.run(tf.global_variables_initializer())
 
+    accuracy = []
     for step in range(50000):
         i, l = data_generator.sample_batch('train', FLAGS.meta_batch_size)
         feed = {ims: i.astype(np.float32), labels: l.astype(np.float32)}
@@ -124,3 +129,12 @@ with tf.Session() as sess:
             pred = pred[:, -1, :, :].argmax(2)
             l = l[:, -1, :, :].argmax(2)
             print("Test Accuracy", (1.0 * (pred == l)).mean())
+            acc = (1.0 * (pred == l)).mean()
+            accuracy.append(acc)
+            # if acc > 0.9:
+            #     break
+
+    plt.plot(list(range(0, 50000, 100)), accuracy)
+    plt.xlabel('Step')
+    plt.ylabel('Test Accuracy')
+    plt.savefig('%d-shot_%d-way_B=%d.png' % (FLAGS.num_samples, FLAGS.num_classes, FLAGS.meta_batch_size))

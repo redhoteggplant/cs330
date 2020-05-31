@@ -9,8 +9,8 @@ from tensorflow.keras import layers
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer(
-    'num_classes', 5, 'number of classes used in classification (e.g. 5-way classification).')
+flags.DEFINE_integer('num_classes', 5,
+                     'number of classes used in classification (e.g. 5-way classification).')
 
 flags.DEFINE_integer('num_samples', 1,
                      'number of examples used for inner gradient update (K for K-shot learning).')
@@ -63,10 +63,10 @@ class MANN(tf.keras.Model):
         input_labels = tf.concat([labels[:, :-1, :, :],
                                   tf.zeros_like(labels[:, -1:])],
                                  axis=1)
-        images_labels = tf.concat((input_images, input_labels), -1)
-        hidden = self.layer1(images_labels.reshape([-1, K_1*N, D+N]))   # specifying B raises an error, because the dim can be Dimension(None)
-        predictions = self.layer2(hidden)
-        out = predictions.reshape([-1, K_1, N, N])
+        images_labels = tf.concat([input_images, input_labels], -1)
+        hidden = self.layer1(tf.reshape(images_labels, [-1, K_1*N, D+N]))   # specifying B raises an error, because the dim can be Dimension(None)
+        scores = self.layer2(hidden)
+        out = tf.reshape(scores, [-1, K_1, N, N])
 
         #############################
         return out

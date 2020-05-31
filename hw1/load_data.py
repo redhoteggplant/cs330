@@ -4,6 +4,7 @@ import random
 import tensorflow as tf
 from scipy import misc
 import imageio
+import matplotlib.pyplot as plt
 
 def get_images(paths, labels, nb_samples=None, shuffle=True):
     """
@@ -145,3 +146,24 @@ if __name__ == "__main__":
     assert(all_image_batches.shape == (batch_size, num_samples_per_class, num_classes, 784))
     assert(all_label_batches.shape == (batch_size, num_samples_per_class, num_classes, num_classes))
     print(all_label_batches[0, :, :, :])   # prints K sets of N images
+
+    def plot_images(imgs, labels, n_col=num_classes, title=None):
+        plt.figure(figsize=(8, 2))
+        n_row = np.ceil(len(imgs) / n_col).astype(int)
+        for img_idx, (img, label) in enumerate(zip(imgs, labels)):
+            plt.subplot(n_row, n_col, img_idx+1)
+            plt.imshow(img)
+            plt.axis('off')
+            plt.title(label.argmax())
+
+        if title:
+            plt.suptitle(title)
+        plt.show()
+
+    for i in range(batch_size):
+        images, labels = all_image_batches[i], all_label_batches[i]
+        train_images, train_labels = images[:-1].reshape(-1, 28, 28), labels[:-1].reshape(-1, num_classes)  # K-1, N, N
+        test_images, test_labels = images[-1:].reshape(-1, 28, 28), labels[-1:].reshape(-1, num_classes) # 1, N, N
+
+        plot_images(train_images, train_labels, n_col=num_classes, title=f'Train #{i+1}')
+        plot_images(test_images, test_labels, n_col=num_classes, title=f'Test #{i+1}')

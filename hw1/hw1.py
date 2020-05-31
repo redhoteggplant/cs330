@@ -31,7 +31,11 @@ def loss_function(preds, labels):
     #############################
     #### YOUR CODE GOES HERE ####
 
-    loss = tf.nn.softmax_cross_entropy_with_logits(labels=labels[:, -1], logits=preds[:, -1])
+    print("labels.shape: ", labels[:, -1:].get_shape().as_list())
+    loss = tf.losses.softmax_cross_entropy(labels[:, -1:], preds[:, -1:], reduction=tf.losses.Reduction.NONE)
+    print(loss.eval(), "shape: ", loss.get_shape().as_list())
+    loss = tf.losses.softmax_cross_entropy(labels[:, -1], preds[:, -1], reduction=tf.losses.Reduction.NONE)
+    print(loss.eval(), "shape: ", loss.get_shape().as_list())
     loss = tf.reduce_mean(loss)
 
     return loss
@@ -70,6 +74,18 @@ class MANN(tf.keras.Model):
 
         #############################
         return out
+
+with tf.Session() as sess:
+    B, K, N = 2, 1, 2
+    labels = np.array([[0, 1, 1, 0, 1, 0, 0, 1], [1, 0, 0, 1, 0, 1, 1, 0]]).reshape([B, K+1, N, N])
+    preds = np.array([[0.5, 0.5, 0.7, 0.3, 0.8, 0.2, 0.3, 0.7], [0.9, 0.1, 0.1, 0.9, 0.1, 0.9, 0.9, 0.1]]).reshape([B, K+1, N, N])
+    loss = loss_function(tf.convert_to_tensor(preds), tf.convert_to_tensor(labels))
+    # data_generator = DataGenerator(FLAGS.num_classes, FLAGS.num_samples + 1)
+    # ims, labels = data_generator.sample_batch('train', FLAGS.meta_batch_size)
+    # o = MANN(FLAGS.num_classes, FLAGS.num_samples + 1)
+    # out = o(ims.astype(np.float32), labels.astype(np.float32))
+    # loss = loss_function(tf.convert_to_tensor(out), tf.convert_to_tensor(labels))
+exit(0)
 
 ims = tf.placeholder(tf.float32, shape=(
     None, FLAGS.num_samples + 1, FLAGS.num_classes, 784))

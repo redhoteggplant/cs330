@@ -36,11 +36,6 @@ def loss_function(preds, labels):
     #### YOUR CODE GOES HERE ####
 
     loss = tf.losses.softmax_cross_entropy(labels[:, -1], preds[:, -1])
-    print("loss: ", loss.eval(), "shape: ", loss.get_shape().as_list())
-    loss = tf.losses.softmax_cross_entropy(labels[:, -1], preds[:, -1], reduction=tf.losses.Reduction.NONE)
-    print("loss: ", loss.eval(), "shape: ", loss.get_shape().as_list())
-    loss = tf.reduce_mean(loss)
-    print("loss: ", loss.eval())
 
     return loss
     #############################
